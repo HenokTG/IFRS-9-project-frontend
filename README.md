@@ -1,3 +1,3 @@
-## Minimal [(Free version)](https://minimal-kit-react.vercel.app/)
+## IFRS 9 Application Frontend
 
 
