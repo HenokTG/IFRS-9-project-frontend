@@ -1,3 +1,3 @@
-## IFRS 9 Analysis React App
+## IFRS 9 Application Frontend
 
 
