@@ -1,15 +1,31 @@
 // @mui
 import PropTypes from 'prop-types';
 import { alpha, styled } from '@mui/material/styles';
-import { Card, Typography, TextField } from '@mui/material';
+import {
+  Box,
+  Card,
+  Typography,
+  TextField,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Select,
+  CircularProgress,
+} from '@mui/material';
+
 // date-picker
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+// context and modules
+import { useGlobalContext } from 'contexts/AppContext';
+
 // utils
-import { fShortenNumber } from '../../utils/formatNumber';
+import { fShortenNumber } from 'utils/formatNumber';
+
 // components
-import Iconify from '../../components/Iconify';
+import Iconify from 'components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +46,7 @@ AppWidgetSummary.propTypes = {
   sumTotal: PropTypes.object.isRequired,
 };
 
-export function AppWidgetSummary({ sumTotal, ...other }) {
+export function AppWidgetSummary({ sumTotal, loading, ...other }) {
   const { title, total, icon, color } = sumTotal;
   return (
     <Card
@@ -56,7 +72,11 @@ export function AppWidgetSummary({ sumTotal, ...other }) {
         <Iconify icon={icon} width={36} height={36} />
       </IconWrapperStyle>
 
-      <Typography variant="h3">{total !== 0 ? fShortenNumber(total) : '-'}</Typography>
+      {loading ? (
+        <CircularLoader size={25} sx={{ pb: 2 }} />
+      ) : (
+        <Typography variant="h3">{total !== 0 ? fShortenNumber(total) : '-'}</Typography>
+      )}
 
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
         {title}
@@ -65,7 +85,48 @@ export function AppWidgetSummary({ sumTotal, ...other }) {
   );
 }
 
+export function CircularLoader({ size, sx }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', ...sx }}>
+      <CircularProgress size={size ?? 50} />
+    </Box>
+  );
+}
+
 // ----------------------------------------------------------------------
+
+export const ReportingMonthSelect = ({ summaryDate, setSummaryDate, isDarkMode }) => {
+  const { approvedResults } = useGlobalContext();
+
+  const handleChange = (event) => {
+    setSummaryDate(event.target.value);
+  };
+
+  return (
+    <FormControl sx={{ minWidth: 120 }} size="small">
+      <InputLabel id="reporting-month-select-label">Reporting Month</InputLabel>
+      <Select
+        labelId="reporting-month-select-label"
+        id="reporting-month-select-small"
+        value={summaryDate}
+        label="Reporting Month"
+        onChange={handleChange}
+        sx={{ color: isDarkMode ? 'white' : 'black' }}
+      >
+        {approvedResults.map((repoMonth) => (
+          <MenuItem key={repoMonth.monthLabel} value={repoMonth.monthLabel}>
+            {repoMonth.monthLabel}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+};
+
+ReportingMonthSelect.propTypes = {
+  summaryDate: PropTypes.string,
+  setMonth: PropTypes.func,
+};
 
 export const MonthPicker = ({ month, setMonth, sx }) => (
   <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -74,13 +135,13 @@ export const MonthPicker = ({ month, setMonth, sx }) => (
       type="date"
       value={month}
       onChange={() => false}
-      onMonthChange={(newValue) => {
+      onYearChange={(newValue) => {
         setMonth(newValue);
       }}
       inputFormat="MMMM, YYYY"
       disableMaskedInput
-      openTo="year"
-      views={['year', 'month']}
+      openTo="month"
+      views={['month', 'year']}
       renderInput={(params) => (
         <TextField
           {...params}

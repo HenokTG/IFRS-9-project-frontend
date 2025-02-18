@@ -3,18 +3,21 @@ import { useEffect } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
-import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
-// mock
-// import account from '../../_mock/account';
+import { Box, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
+
 // hooks
-import useResponsive from '../../hooks/useResponsive';
+import useResponsive from 'hooks/useResponsive';
+import { useGlobalContext } from 'contexts/AppContext';
+
 // components
-import Logo from '../../components/Logo';
+import Label from 'components/Label';
+import Scrollbar from 'components/Scrollbar';
+import NavSection from 'components/NavSection';
 import AccountPopover from './AccountPopover';
-import Scrollbar from '../../components/Scrollbar';
-import NavSection from '../../components/NavSection';
+
 // context and modules
 import navConfig from './NavConfig';
+
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
@@ -39,12 +42,12 @@ const AccountStyle = styled('div')(({ theme }) => ({
 DashboardSidebar.propTypes = {
   isOpenSidebar: PropTypes.bool,
   onCloseSidebar: PropTypes.func,
-  account: PropTypes.object,
 };
 
-export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, account }) {
-
+export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
+
+  const { loggedIn, profile } = useGlobalContext();
 
   const isDesktop = useResponsive('up', 'lg');
 
@@ -55,6 +58,12 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, accoun
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  const allowedSideMenu = navConfig.filter((item) => {
+    const userRole = item.requiredRoles;
+
+    return item.isPubic || (loggedIn && (!userRole || userRole.includes(profile.role)));
+  });
+
   const renderContent = (
     <Scrollbar
       sx={{
@@ -63,7 +72,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, accoun
       }}
     >
       <Box sx={{ px: 2.5, pt: 3, pb: 1 }}>
-        <Box component="img" src="/static/eba-logo.png" sx={{ width: 250, height: 60 }} />
+        <Box component="img" src="/static/img/logo/eba-logo.png" sx={{ width: 250, height: 60 }} />
         <Typography
           color="#191957"
           sx={{ fontFamily: 'Lucida Handwriting', textAlign: 'center', fontSize: 18, py: 2, fontWeight: 'bold' }}
@@ -72,24 +81,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, accoun
         </Typography>
       </Box>
 
-      <Box sx={{ mb: 2 }}>
-        <AccountStyle>
-          <AccountPopover account={account} />
-          <Box sx={{ ml: 2 }}>
-            <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-              {account.displayName}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {account.role}
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              {account.dept}
-            </Typography>
-          </Box>
-        </AccountStyle>
-      </Box>
-
-      <NavSection navConfig={navConfig} />
+      <NavSection navConfig={allowedSideMenu} />
 
       <Box sx={{ flexGrow: 1 }} />
     </Scrollbar>

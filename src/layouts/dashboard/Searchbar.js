@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import { Input, Slide, Button, IconButton, InputAdornment, ClickAwayListener } from '@mui/material';
 // component
-import Iconify from '../../components/Iconify';
+import Iconify from 'components/Iconify';
 // context and modules
-import { useGlobalContext } from '../../context';
-import fetchDashboardSummary from '../../_apiAxios/dashboardSummary';
+import { useGlobalContext } from 'contexts/AppContext';
+import fetchDashboardSummary from '_apiAxios/dashboardSummary';
 
 // ----------------------------------------------------------------------
 

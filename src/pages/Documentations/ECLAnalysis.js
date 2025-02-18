@@ -1,15 +1,13 @@
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-
 // @mui
 import { Typography, Box, Container } from '@mui/material';
+
 // components
 
 // context and modules
-import { useGlobalContext } from '../../context';
+import { useGlobalContext } from 'contexts/AppContext';
 // ----------------------------------------------------------------------
 
 const remarkDetail = [...Array(Math.floor(Math.random() * 7 + 1)).keys()].map((elem) => {
@@ -20,16 +18,6 @@ const remarkDetail = [...Array(Math.floor(Math.random() * 7 + 1)).keys()].map((e
 });
 
 export default function DocECLAnalysis() {
-  const { loggedIn } = useGlobalContext();
-  const navigate = useNavigate();
-  const prevLocation = useLocation();
-
-  useEffect(() => {
-    if (loggedIn === false) {
-      navigate(`/login?redirectTo=${prevLocation.pathname}`);
-    }
-  }, []);
-
   return (
     <Box
       component="main"

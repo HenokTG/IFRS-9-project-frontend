@@ -3,28 +3,30 @@ import PropTypes from 'prop-types';
 
 // date-picker
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 // @mui
 import { TextField } from '@mui/material';
 
-const DatePicker = ({ picekerName, pickerLabel, date, setDate, sx }) => (
+const DatePicker = ({ fullWidth = false, isMonthPicker = true, picekerName, pickerLabel, date, setDate, sx }) => (
   <LocalizationProvider dateAdapter={AdapterDayjs}>
     <DesktopDatePicker
-      //   id="datepicker"
-      name={picekerName}
       type="date"
+      name={picekerName}
       label={pickerLabel}
-      value={date}
-      onChange={(newValue) => {
-        setDate(newValue);
+      value={date || null}
+      onChange={(selectedDate) => {
+        const newDate = isMonthPicker
+          ? new Date(selectedDate.year(), selectedDate.month() + 1, 0)
+          : selectedDate.format('YYYY-MM-DD');
+        setDate(newDate);
       }}
       inputFormat="MMMM DD, YYYY"
       disableMaskedInput
-      openTo="year"
-      views={['year', 'month', 'day']}
-      renderInput={(params) => <TextField {...params} required variant="standard" sx={sx} />}
+      openTo={isMonthPicker ? 'month' : 'day'}
+      views={isMonthPicker ? ['month', 'year'] : ['day', 'month', 'year']}
+      renderInput={(params) => <TextField fullWidth={fullWidth} {...params} required variant="standard" sx={sx} />}
       OpenPickerButtonProps={{ color: 'primary' }}
     />
   </LocalizationProvider>
@@ -33,9 +35,11 @@ const DatePicker = ({ picekerName, pickerLabel, date, setDate, sx }) => (
 DatePicker.propTypes = {
   picekerName: PropTypes.string,
   picekerLabel: PropTypes.string,
-  date: PropTypes.any,
+  isMonthPicker: PropTypes.bool,
+  fullWidth: PropTypes.bool,
   setDate: PropTypes.func,
   sx: PropTypes.object,
+  date: PropTypes.any,
 };
 
 export default DatePicker;

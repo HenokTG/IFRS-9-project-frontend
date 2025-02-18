@@ -24,24 +24,24 @@ import { styled } from '@mui/material/styles';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 
 // components
-import ReportLoading from '../Reports/helper-modules/reportLoading';
+import ListLoading from 'utils/helper-modules/listLoading';
 
 // icons
-import { Ask } from '../../icons/ask-question';
-import { Edit } from '../../icons/edit';
-import { Delete } from '../../icons/delete';
-import { Raise } from '../../icons/raise-hand';
-import { SolidRaise } from '../../icons/filled-raise-hand';
-import { Dislike } from '../../icons/dislike';
-import { SolidDislike } from '../../icons/filled-dislike';
-import { Like } from '../../icons/like';
-import { SolidLike } from '../../icons/filled-like';
-import { Search as SearchIcon } from '../../icons/search';
+import { Ask } from 'icons/ask-question';
+import { Edit } from 'icons/edit';
+import { Delete } from 'icons/delete';
+import { Raise } from 'icons/raise-hand';
+import { SolidRaise } from 'icons/filled-raise-hand';
+import { Dislike } from 'icons/dislike';
+import { SolidDislike } from 'icons/filled-dislike';
+import { Like } from 'icons/like';
+import { SolidLike } from 'icons/filled-like';
+import { Search as SearchIcon } from 'icons/search';
 
 // context and modules
-import { axiosInstance } from '../../utils/axios';
-import { useGlobalContext } from '../../context';
-import { questionAndAnswer, manageFAQRatings } from '../../_apiAxios/customer-fetch';
+import { axiosInstance } from 'utils/axios';
+import { useGlobalContext } from 'contexts/AppContext';
+import { questionAndAnswer, manageFAQRatings } from '_apiAxios/forum-fetch';
 
 // custom styles
 
@@ -105,10 +105,6 @@ export default function QuestionAnswer() {
 
   useEffect(
     () => {
-      if (loggedIn === false) {
-        navigate(`/login?redirectTo=${prevLocation.pathname}`, { replace: true });
-      }
-
       const fetchAPI = `faq-blog/api/list-question-answer?page_num=${page}`;
 
       questionAndAnswer(fetchAPI, setLoading, setQuestionsList, setPaginationProps);
@@ -191,7 +187,7 @@ export default function QuestionAnswer() {
           </Grid>
           {loading ? (
             <Box sx={{ maxHeight: 10, mt: -5 }}>
-              <ReportLoading />
+              <ListLoading />
             </Box>
           ) : (
             <Box>

@@ -5,11 +5,14 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
-//
-import App from './App';
-import AppProvider from './context';
+// context
+import AppProvider from 'contexts/AppContext';
+import ConfigProvider from 'contexts/ConfigContext';
+
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
+
+import App from './App';
 
 // ----------------------------------------------------------------------
 
@@ -18,9 +21,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <HelmetProvider>
     <BrowserRouter>
-      <AppProvider>
-        <App />
-      </AppProvider>
+      <ConfigProvider>
+        <AppProvider>
+          <App />
+        </AppProvider>
+      </ConfigProvider>
     </BrowserRouter>
   </HelmetProvider>
 );

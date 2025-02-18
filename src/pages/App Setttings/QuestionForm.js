@@ -11,12 +11,12 @@ import { Stack, Typography, Button, Box, CircularProgress } from '@mui/material'
 import { LoadingButton } from '@mui/lab';
 
 // components
-import { FormProvider, RHFTextField } from '../../components/hook-form';
+import { FormProvider, RHFTextField } from 'components/hook-form';
 
 // context and modules
-import { axiosInstance } from '../../utils/axios';
-import { useGlobalContext } from '../../context';
-import { questionUpdateFetch } from '../../_apiAxios/customer-fetch';
+import { axiosInstance } from 'utils/axios';
+import { useGlobalContext } from 'contexts/AppContext';
+import { questionUpdateFetch } from '_apiAxios/forum-fetch';
 
 // ----------------------------------------------------------------------
 
@@ -29,16 +29,6 @@ export default function QuestionForm() {
   const { faqID } = useParams();
 
   const [questionLoading, setQuestionLoading] = useState(true);
-
-  useEffect(
-    () => {
-      if (loggedIn === false) {
-        navigate(`/login?redirectTo=${prevLocation.pathname}`);
-      }
-    },
-    // eslint-disable-next-line
-    []
-  );
 
   const questionSchema = Yup.object().shape({
     question: Yup.string().required('Question is required'),

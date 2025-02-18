@@ -38,7 +38,7 @@ export default function UserListHead({ order, orderBy, headLabel, onRequestSort 
   };
 
   return (
-    <TableHead sx={{ bgcolor: 'info.main' }}>
+    <TableHead sx={{ bgcolor: 'primary.main' }}>
       <TableRow>
         {headLabel.map((headCell) => (
           <BoxedTableCell

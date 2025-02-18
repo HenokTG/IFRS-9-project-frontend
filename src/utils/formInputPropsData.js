@@ -43,7 +43,7 @@ export const registerData = [
   },
   {
     newName_: 'password2',
-    newLable_: 'Confirm Password',
+    newLable_: 'Confirm password',
     newType_: 'password',
   },
 ];
@@ -51,25 +51,20 @@ export const registerData = [
 export const profileData = [
   {
     newName_: 'first_name',
-    newLable_: 'Enter First Name',
+    newLable_: 'Enter first name',
   },
   {
     newName_: 'last_name',
-    newLable_: 'Enter Last Name',
+    newLable_: 'Enter last name',
   },
   {
-    newName_: 'Department',
-    newLable_: 'Enter Department',
+    newName_: 'department',
+    newLable_: 'Enter department',
   },
   {
-    newName_: 'Job_title',
-    newLable_: 'Enter Job Title',
+    newName_: 'job_title',
+    newLable_: 'Enter job title',
   },
-];
-
-export const minMaxFLIValues = [
-  { fieldDefaultValue_: 1.05, inputLabel: 'Expected Minimum FLI Value', inputName: 'minFLI' },
-  { fieldDefaultValue_: 1.55, inputLabel: 'Expected Maximum FLI Value', inputName: 'maxFLI' },
 ];
 
 export const scenarioData = [

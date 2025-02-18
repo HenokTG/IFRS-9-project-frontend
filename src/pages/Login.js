@@ -1,14 +1,16 @@
-import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Card, Box, Link, Container, Typography } from '@mui/material';
+import { Card, Box, Container, Typography } from '@mui/material';
+
 // hooks
-import useResponsive from '../hooks/useResponsive';
+import useResponsive from 'hooks/useResponsive';
+
 // components
-import Page from '../components/Page';
-import Logo from '../components/Logo';
+import Page from 'components/Page';
+
 // sections
-import { LoginForm } from '../sections/auth/login';
+import { LoginForm } from 'sections/auth/login';
+
 // ----------------------------------------------------------------------
 
 const RootStyle = styled('div')(({ theme }) => ({
@@ -65,7 +67,7 @@ export default function Login() {
       <RootStyle>
         <HeaderStyle>
           <Box sx={{ px: 2.5, pt: 3, pb: 1 }}>
-            <Box component="img" src="/static/eba-logo.png" sx={{ width: 350, height: 80 }} />
+            <Box component="img" src="/static/img/logo/eba-logo.png" sx={{ width: 350, height: 80 }} />
             <Typography
               color="goldenrod"
               sx={{ fontFamily: 'Lucida Handwriting', textAlign: 'center', fontSize: 30, py: 2, fontWeight: 'bold' }}
@@ -73,14 +75,6 @@ export default function Login() {
               IFRS-9 Analyzer
             </Typography>
           </Box>
-          {smUp && (
-            <Typography variant="body2" sx={{ mt: { md: -2 } }}>
-              Don’t have an account? {''}
-              <Link variant="subtitle2" component={RouterLink} to="/register">
-                Get started
-              </Link>
-            </Typography>
-          )}
         </HeaderStyle>
 
         {mdUp && (
@@ -92,21 +86,12 @@ export default function Login() {
         <Container maxWidth="sm">
           <ContentStyle>
             <Typography variant="h4" gutterBottom>
-              Sign in to Institute Account to Use the Application
+              Sign in to institute account to use our services
             </Typography>
 
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Enter your details below.</Typography>
 
             <LoginForm />
-
-            {!smUp && (
-              <Typography variant="body2" align="center" sx={{ mt: 3 }}>
-                Don’t have an account?{' '}
-                <Link variant="subtitle2" component={RouterLink} to="/register">
-                  Get started
-                </Link>
-              </Typography>
-            )}
           </ContentStyle>
         </Container>
       </RootStyle>

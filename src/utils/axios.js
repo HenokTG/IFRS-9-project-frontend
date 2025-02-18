@@ -1,6 +1,9 @@
+import cogoToast from '@successtar/cogo-toast';
+
 const axios = require('axios').default;
 
-const baseURL = 'http://127.0.0.1:8000/';
+export const host = '//127.0.0.1:8000/';
+export const baseURL = `${window.location.protocol}${host}`;
 
 export const axiosInstance = axios.create({
   baseURL,
@@ -12,23 +15,41 @@ export const axiosInstance = axios.create({
   },
 });
 
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token');
+    config.headers.Authorization = token ? `JWT ${token}` : null;
+    return config;
+  },
+  (error) => {
+    Promise.reject(error);
+  }
+);
+
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data?.success_message) {
+      cogoToast.success(response.data?.success_message);
+    }
+    return response;
+  },
 
   async (error) => {
+    console.log('error', error);
+
     const originalRequest = error.config;
 
-    if (typeof error.response === 'undefined') {
-      // alert(`A server error occurred. Sorry about this - we will get it fixed shortly.`);
+    const pathName = window.location.pathname;
 
-      window.location.reload();
+    if (typeof error.response === 'undefined') {
+      cogoToast.error('A server error occurred. Sorry about this - we will get it fixed shortly.');
       return Promise.reject(error);
     }
 
-    if (error.response.status === 401 && originalRequest.url === `${baseURL}api/token/refresh/`) {
-      console.log('auth-refresh', error);
-      const prevLocation = window.location;
-      window.location.href = `/login?redirectTo=${prevLocation.pathname}`;
+    if (error.response.status === 401 && originalRequest.url === `api/token/refresh/`) {
+      localStorage.removeItem('refresh_token');
+
+      window.location.href = `/login?redirectTo=${pathName}`;
       return Promise.reject(error);
     }
 
@@ -41,36 +62,77 @@ axiosInstance.interceptors.response.use(
 
       if (refreshToken) {
         const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
-
-        // exp date in token is expressed in seconds, while now() returns milliseconds:
         const now = Math.ceil(Date.now() / 1000);
-        console.log(tokenParts.exp);
 
         if (tokenParts.exp > now) {
           return axiosInstance
             .post('api/token/refresh/', { refresh: refreshToken })
             .then((response) => {
-              localStorage.setItem('access_token', response.data.access);
-              localStorage.setItem('refresh_token', response.data.refresh);
-
-              axiosInstance.defaults.headers.Authorization = `JWT ${response.data.access}`;
-              originalRequest.headers.Authorization = `JWT ${response.data.access}`;
+              localStorage.setItem('access_token', response.data?.access);
+              localStorage.setItem('refresh_token', response.data?.refresh);
 
               return axiosInstance(originalRequest);
             })
             .catch((err) => {
               console.log(err);
+              localStorage.removeItem('refresh_token');
             });
         }
 
-        console.log('Refresh token is expired', tokenParts.exp < now);
-        window.location.href = '/login';
+        localStorage.removeItem('refresh_token');
+        window.location.href = `/login?redirectTo=${pathName}`;
+
+        cogoToast.error('Token expired. Please login again.');
       }
-      console.log('Refresh token not available.');
-      window.location.href = '/login';
+      window.location.href = `/login?redirectTo=${pathName}`;
+      cogoToast.error("Token doesn't exist. Please login.");
     }
 
-    // specific error handling done elsewhere
+    if (error.code === 'ERR_BAD_REQUEST' && error.response?.data) {
+      let errMessage = '';
+
+      if (error.response?.data?.detail) {
+        errMessage = error.response?.data?.detail;
+      } else {
+        errMessage = error.response?.data[Object.keys(error.response?.data)?.[0]][0];
+      }
+
+      return cogoToast.error(errMessage);
+    }
+
+    cogoToast.error('Error occured');
+
     return Promise.reject(error);
   }
 );
+
+export const downloadFile = (href) => {
+  const fileName = href.split('/')[-1];
+  const link = document.createElement('a');
+  link.href = `${baseURL}${href.substring(1)}`;
+  link.setAttribute('download', fileName);
+  link.click();
+
+  URL.revokeObjectURL(href);
+};
+
+export const downloadResult = (endpoint) => {
+  const config = { responseType: 'blob' };
+
+  axiosInstance
+    .get(endpoint, config)
+    .then((res) => {
+      const fileName = res.headers.get('Content-Disposition')?.split('"')[1];
+      if (fileName) {
+        const href = URL.createObjectURL(res.data);
+
+        const link = document.createElement('a');
+        link.href = href;
+        link.setAttribute('download', fileName);
+        link.click();
+
+        URL.revokeObjectURL(href);
+      }
+    })
+    .catch((error) => console.log(error));
+};

@@ -1,9 +1,6 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-// Auth
-// import useAuth from '../hooks/useAuth';
 
 // form
 import { useForm } from 'react-hook-form';
@@ -14,41 +11,61 @@ import { Link, Stack, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
 // components
-import Iconify from '../../../components/Iconify';
-import { FormProvider, RHFTextField, RHFCheckbox } from '../../../components/hook-form';
+import Iconify from 'components/Iconify';
+import { FormProvider, RHFTextField, RHFCheckbox } from 'components/hook-form';
 
 // context and modules
-import { axiosInstance } from '../../../utils/axios';
-import { useGlobalContext } from '../../../context';
+import { axiosInstance } from 'utils/axios';
+import { cleanUserDetail, cleanApprovedResultsList } from '_apiAxios/account';
+
+import { useGlobalContext } from 'contexts/AppContext';
 
 // ----------------------------------------------------------------------
 
 const queryString = require('query-string');
 
 export default function LoginForm() {
-  // const { setAuth } = useAuth();
-
-  const { setLoggedIn, setProfilePk } = useGlobalContext();
   const navigate = useNavigate();
   const nextLocation = useLocation();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isRemembered, setIsRemembered] = useState(false);
+  const { setLoggedIn, setProfile, setApprovedResults, setUnreadNotifications } = useGlobalContext();
+
+  useEffect(() => {
+    const refreshToken = localStorage.getItem('refresh_token');
+
+    if (refreshToken) {
+      const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
+      const now = Math.ceil(Date.now() / 1000);
+
+      if (tokenParts.exp > now) {
+        setIsRemembered(true);
+      } else {
+        localStorage.removeItem('refresh_token');
+      }
+    }
+  }, []);
 
   const LoginSchema = Yup.object().shape({
-    userName: Yup.string().required('Agent name is required'),
+    userName: Yup.string().required('User name is required'),
     password: Yup.string().required('Password is required'),
   });
 
-  const defaultValues = {
-    userName: '',
-    password: '',
-    remember: true,
+  const getDefaultValues = () => {
+    return {
+      userName: '',
+      password: '',
+      remember: isRemembered,
+    };
   };
 
   const methods = useForm({
     resolver: yupResolver(LoginSchema),
-    defaultValues,
+    defaultValues: getDefaultValues(),
   });
+
+  useEffect(() => methods.reset(getDefaultValues()), [isRemembered]);
 
   const {
     handleSubmit,
@@ -63,19 +80,26 @@ export default function LoginForm() {
       password: formData.password,
     };
     axiosInstance
-      .post(`api/token/`, postData)
+      .post('users/api/login/', postData)
       .then((res) => {
-        console.log(res.data);
-        localStorage.setItem('access_token', res.data.access);
-        localStorage.setItem('refresh_token', res.data.refresh);
-        axiosInstance.defaults.headers.Authorization = `JWT ${localStorage.getItem('access_token')}`;
-        setLoggedIn(true);
-        setProfilePk(postData.username);
+        if (res.data?.token?.access) {
+          localStorage.setItem('access_token', res.data.token.access);
+          if (formData.remember) {
+            localStorage.setItem('refresh_token', res.data.token.refresh);
+          } else {
+            localStorage.removeItem('refresh_token');
+          }
 
-        // const role = response?.data?.role;
-        // const accessToken = response?.data?.access;
-        // const refreshToken = response?.data?.refresh;
-        // setAuth({ userID: postData.username, role, accessToken, refreshToken });
+          axiosInstance.defaults.headers.Authorization = `JWT ${localStorage.getItem('access_token')}`;
+
+          const userProfile = cleanUserDetail(res.data.user_detail);
+          const approvedRes = cleanApprovedResultsList(res.data.approved_results);
+
+          setLoggedIn(true);
+          setProfile(userProfile);
+          setApprovedResults(approvedRes);
+          setUnreadNotifications(res.data.unread_notifications);
+        }
 
         navigate(!redirectTo ? '/dashboard' : redirectTo, { replace: true });
       })
@@ -105,8 +129,15 @@ export default function LoginForm() {
       </Stack>
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-        <RHFCheckbox name="remember" label="Remember me" />
-        <Link variant="subtitle2" underline="hover">
+        {isRemembered ? <span /> : <RHFCheckbox name="remember" label="Remember me" />}
+        <Link
+          onClick={() => {
+            navigate('/forget-password');
+          }}
+          variant="subtitle2"
+          underline="hover"
+          sx={{ cursor: 'pointer' }}
+        >
           Forgot password?
         </Link>
       </Stack>

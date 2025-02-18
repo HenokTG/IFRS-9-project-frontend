@@ -1,5 +1,5 @@
 // component
-import Iconify from '../../components/Iconify';
+import Iconify from 'components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -7,7 +7,7 @@ const getIcon = (name) => <Iconify icon={name} width={22} height={22} />;
 
 const navConfig = [
   {
-    title: 'dashboard',
+    title: 'Dashboard',
     path: '/dashboard',
     icon: getIcon('eva:pie-chart-2-fill'),
   },
@@ -16,9 +16,10 @@ const navConfig = [
     title: 'Analysis',
     path: '/analysis',
     icon: getIcon('ep:data-analysis'),
+    requiredRoles: ['Analyst', 'Examiner', 'Client Admin'],
     children: [
       {
-        title: 'Macro-CCF Computation',
+        title: 'FLI-CCF Computation',
         path: '/analysis/macro-ccf-analysis',
       },
       {
@@ -32,29 +33,48 @@ const navConfig = [
     ],
   },
   {
-    title: 'Annual Reports',
+    title: 'Summary Reports',
     path: '/report',
     icon: getIcon('mdi:report-box'),
     children: [
       {
         title: 'Term Loan',
-        path: '/report/term-loan-result-summary',
+        path: '/report/term-loan',
       },
       {
         title: 'Other Financial Assets',
-        path: '/report/other-financial-assets-result-summary',
+        path: '/report/other-financial-assets',
       },
       {
         title: 'Cure Rates',
-        path: '/report/cure-rate-result-summary',
+        path: '/report/cure-rate',
       },
       {
         title: 'Collections LGD',
-        path: '/report/collections-lgd-result-summary',
+        path: '/report/collections-lgd',
       },
       {
         title: 'Macro Economic and CCF',
-        path: '/report/macro-economic-projections-and-ccf-result-summary',
+        path: '/report/macro-economic-projections-and-ccf',
+      },
+    ],
+  },
+  {
+    title: 'Documents Download',
+    path: '/documents-download',
+    icon: getIcon('streamline:download-file'),
+    children: [
+      {
+        title: 'FLI-CCF Computation',
+        path: '/documents-download/macro-ccf-analysis',
+      },
+      {
+        title: 'PD input Preparation',
+        path: '/documents-download/pd-input-data-organizer',
+      },
+      {
+        title: 'ECL Analysis',
+        path: '/documents-download/ecl-analysis',
       },
     ],
   },
@@ -64,7 +84,7 @@ const navConfig = [
     icon: getIcon('fluent-mdl2:documentation'),
     children: [
       {
-        title: 'Macro-CCF Analysis',
+        title: 'FLI-CCF Analysis',
         path: '/documentation/macro-ccf-analysis',
       },
       {
@@ -77,32 +97,51 @@ const navConfig = [
       },
       {
         title: 'View Reports',
-        path: '/documentation/how-to-use-annual-reports',
+        path: '/documentation/summary-reports',
+      },
+      {
+        title: 'Download Doucuments',
+        path: '/documentation/download-documents',
       },
     ],
+  },
+
+  {
+    title: 'Forum',
+    path: '/users-forum',
+    icon: getIcon('mdi:head-question'),
+    requiredRoles: ['Analyst', 'Examiner', 'Client Admin'],
+  },
+  {
+    title: 'Users Management',
+    path: '/users-management',
+    icon: getIcon('eva:people-fill'),
+    requiredRoles: ['Client Admin'],
   },
 
   {
     title: 'App Settings',
     path: '/app-settings',
     icon: getIcon('eva:settings-fill'),
+    requiredRoles: ['Client Admin'],
     children: [
       {
-        title: 'Users Management',
-        path: '/app-settings/user-management',
-        icon: getIcon('eva:people-fill'),
+        title: 'Company Information',
+        path: '/app-settings/company-info',
+        icon: getIcon('fluent-emoji-high-contrast:bank'),
       },
       {
-        title: 'Q & A',
-        path: '/app-settings/Q-and-A',
-        icon: getIcon('mdi:head-question'),
+        title: 'Analysis Configurations',
+        path: '/app-settings/configurations',
+        icon: getIcon('mdi:database-settings'),
       },
-      // {
-      //   title: 'About the App',
-      //   path: '/app/app-settings/about-and-contact',
-      //   icon: getIcon('carbon:application-web'),
-      // },
     ],
+  },
+  {
+    title: 'About Us',
+    path: '/about-and-contact',
+    isPubic: true,
+    icon: getIcon('hugeicons:developer'),
   },
 ];
 

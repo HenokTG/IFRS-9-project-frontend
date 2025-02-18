@@ -1,8 +1,8 @@
-import { axiosInstance } from '../utils/axios';
+import { axiosInstance } from 'utils/axios';
 
 // ----------------------------------------------------------------------
 
-const summaryList = [
+export const summaryList = [
   { id: 1, title: 'Term Loan Stage 1 Total', total: 0, color: 'success', icon: 'icon-park-outline:good-two' },
   { id: 2, title: 'Term Loan Stage 2 Total', total: 0, color: 'warning', icon: 'ri:emotion-normal-line' },
   { id: 3, title: 'Term Loan Stage 3 Total', total: 0, color: 'error', icon: 'icon-park-outline:bad-two' },
@@ -16,34 +16,40 @@ const summaryList = [
   },
 ];
 
-export const fetchDashboardSummary = (profilePk, summaryAPI, setSummaryList) => {
-  if (profilePk !== '*') {
+export const fetchDashboardSummary = (summaryAPI, filterData) => {
+  return new Promise((resolve, reject) => {
     axiosInstance
-      .get(summaryAPI)
+      .post(summaryAPI, filterData)
       .then((res) => {
-        const newSummaryList = [];
-        res.data.map((total, idx) => newSummaryList.push({ ...summaryList[idx], total }));
-        setSummaryList(newSummaryList);
+        const newSummaryList = res.data.map((total, idx) => {
+          return { ...summaryList[idx], total };
+        });
+
+        resolve({
+          summary: newSummaryList,
+        });
       })
       .catch((error) => {
-        console.log(error);
-        setSummaryList(summaryList);
+        reject(error);
       });
-  }
+  });
 };
 
-export const fetchDashboardTLDataset = (profilePk, TLAPI, setDataSetTL) => {
-  if (profilePk !== '*') {
+export const fetchDashboardTLDataset = (termLoanAPI, filterData) => {
+  return new Promise((resolve, reject) => {
     axiosInstance
-      .get(TLAPI)
+      .post(termLoanAPI, filterData)
       .then((res) => {
-        setDataSetTL([res.data.stage1, res.data.stage2, res.data.stage3, res.data.sector]);
+        const termLoanDataset = [res.data.stage1, res.data.stage2, res.data.stage3, res.data.sector];
+
+        resolve({
+          termLoanDataset,
+        });
       })
       .catch((error) => {
-        console.log(error);
-        setDataSetTL([]);
+        reject(error);
       });
-  }
+  });
 };
 
 const donutPartBgColor = [
@@ -74,10 +80,10 @@ const donutPartBgColor = [
   '#FDC746',
 ];
 
-export const fetchDashboardOFADataset = (profilePk, OFAAPI, setDataSetOFA) => {
-  if (profilePk !== '*') {
+export const fetchDashboardOFADataset = (otherAssetsAPI, filterData) => {
+  return new Promise((resolve, reject) => {
     axiosInstance
-      .get(OFAAPI)
+      .post(otherAssetsAPI, filterData)
       .then((res) => {
         let others = 0;
         const colorList = [];
@@ -92,7 +98,7 @@ export const fetchDashboardOFADataset = (profilePk, OFAAPI, setDataSetOFA) => {
             color: donutPartBgColor[idx],
           });
 
-          if (loanType.value >= 5) {
+          if (loanType.value >= 1000000) {
             eclList.push(loanType.value.toFixed(2));
             loanTitles.push(loanType.type);
             colorList.push(donutPartBgColor[idx]);
@@ -109,11 +115,14 @@ export const fetchDashboardOFADataset = (profilePk, OFAAPI, setDataSetOFA) => {
           colorList.push('#B5D47F');
         }
 
-        setDataSetOFA([loanTitles, eclList, colorList, loanTypes]);
+        const otherAssetsDataset = [loanTitles, eclList, colorList, loanTypes];
+
+        resolve({
+          otherAssetsDataset,
+        });
       })
       .catch((error) => {
-        console.log(error);
-        setDataSetOFA([]);
+        reject(error);
       });
-  }
+  });
 };

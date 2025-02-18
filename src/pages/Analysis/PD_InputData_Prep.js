@@ -1,148 +1,110 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 // @mui
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Grid,
-  Button,
-  TextField,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
-} from '@mui/material';
-
-// components
-import Page from '../../components/Page';
-import AnalysisProgressTracker from './analysis-progress-tracker';
-import { DatePicker, FormProvider } from '../../components/hook-form';
+import { Card, CardContent, CardActions, Grid, Button, TextField, FormControl } from '@mui/material';
 
 // context and modules
-import { handleOrganization } from '../../_apiAxios/handle-all-analysis';
-import { useGlobalContext } from '../../context';
+import { useGlobalContext } from 'contexts/AppContext';
+import { handleOrganization } from '_apiAxios/handle-all-analysis';
+
+// components
+import Page from 'components/Page';
+import { DatePicker, FormProvider, FileUploadField } from 'components/hook-form';
+import AnalysisProgressTracker from './ProgressTracker';
+import AnalysisCardHeader from './AnalysisCardHeader';
+
 // ----------------------------------------------------------------------
 
-export default function MacroCCF() {
-  const { loggedIn, profilePk } = useGlobalContext();
-  const navigate = useNavigate();
-  const prevLocation = useLocation();
+export default function PDInputDataPrep() {
+  const { analysisProgress } = useGlobalContext();
 
-  useEffect(
-    () => {
-      if (loggedIn === false) {
-        navigate(`/login?redirectTo=${prevLocation.pathname}`);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
-  const [taskIdPD, setTaskIdPD] = useState('');
-
+  const [filesList, setFilesList] = useState([]);
   const [reportDate, setReportDate] = useState(null);
+  const [showProgress, setShowProgress] = useState(false);
 
-  const [pdProcess, setPdProcess] = useState({
+  const impValues = { date: reportDate, filesList };
+
+  const initialState = {
     analysisCode: 'PD Progress',
     stage: 0,
     status: 'success',
     title: 'PD Input Data preparation to start',
     total: 70,
-  });
+  };
 
-  const impValues = { date: reportDate, userId: profilePk, inputData: null };
-  const reportDateFileName = reportDate ? new Date(reportDate).toString() : '';
+  const [currentState, setCurrentState] = useState(initialState);
+
+  useEffect(() => {
+    if (analysisProgress.length > 0) {
+      const currentSt = analysisProgress[analysisProgress.length - 1];
+      setCurrentState(currentSt);
+
+      const isHideProgress = currentSt.stage === 0 || currentSt.stage === 1000 || currentSt.stage === 600;
+
+      setShowProgress(!isHideProgress);
+    }
+  }, [analysisProgress]);
 
   return (
     <Page title="PD Input Data Preparation">
-      <FormProvider onSubmit={(e) => handleOrganization(e, impValues, setPdProcess, setTaskIdPD)}>
-        <Card sx={{ mt: 12, px: 4, py: 2, mx: 25, borderRadius: 1 }}>
-          <CardHeader
-            title="PD INPUT DATA PREPARATION"
-            subheader="Fill all Required (*) Fields"
-            sx={{ backgroundColor: 'grey.300', padding: 1, borderRadius: 1 }}
-            titleTypographyProps={{ color: 'success.dark', variant: 'h3', lineHeight: 1.75, align: 'center' }}
-            subheaderTypographyProps={{ color: 'warning.main', variant: 'subtitle1', align: 'center' }}
-          />
-          <CardContent>
+      <FormProvider onSubmit={(e) => handleOrganization(e, impValues)}>
+        <Card sx={{ px: { xs: 1, sm: 4 }, py: 2, mx: { xs: 0, sm: 4, lg: 15 }, borderRadius: 1 }}>
+          <AnalysisCardHeader title="PD INPUT DATA PREPARATION" />
+
+          <CardContent sx={{ px: 0 }}>
             <Grid container spacing={5}>
-              <Grid item lg={12}>
+              <Grid item xs={12}>
                 <FormControl fullWidth required>
-                  <FormLabel sx={{ textAlign: 'center', mb: 1, color: 'info.main' }}>Select Input File(s)</FormLabel>
-                  <FormControlLabel
-                    control={
-                      <TextField
-                        required
-                        name="uploadedFile"
-                        type="file"
-                        size="small"
-                        sx={{ width: '100% ', ml: 4, color: 'info.main' }}
-                        InputProps={{
-                          inputProps: {
-                            multiple: true,
-                            accept: '.xlsx,.parquet',
-                            sx: { color: '#13e247' },
-                          },
-                        }}
-                      />
-                    }
-                  />
+                  <FileUploadField setFilesList={setFilesList} maxFiles={2} />
                 </FormControl>
               </Grid>
-              <Grid item lg={6}>
-                <DatePicker
-                  picekerName="reportingDate"
-                  pickerLabel="Select reporting date"
-                  sx={{ ml: 10 }}
-                  date={reportDate}
-                  setDate={setReportDate}
-                />
-              </Grid>
-              <Grid item lg={6}>
-                <TextField
-                  sx={{ width: '60%', ml: '20%' }}
-                  required
-                  // fullWidth
-                  name="monthsToAppend"
-                  type="number"
-                  label="Number of Months to Append"
-                  defaultValue={12}
-                  InputProps={{
-                    inputProps: {
-                      step: 1,
-                      min: 1,
-                      max: 12,
-                    },
-                  }}
-                />
+              <Grid item xs={12} sx={{ mx: 2 }}>
+                <Grid container spacing={5}>
+                  <Grid item xs={12} sm={6}>
+                    <DatePicker
+                      fullWidth
+                      picekerName="reportingDate"
+                      pickerLabel="Select reporting date"
+                      setDate={setReportDate}
+                      date={reportDate}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="monthsToAppend"
+                      type="number"
+                      label="Number of Months to Append"
+                      defaultValue={12}
+                      InputProps={{
+                        inputProps: {
+                          step: 1,
+                          min: 1,
+                          max: 12,
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </CardContent>
           <CardActions>
-            <Button
-              size="large"
-              color="primary"
-              variant="contained"
-              type="submit"
-              sx={{ width: '100%', fontSize: '1.2rem' }}
-            >
-              Prepare Updated PD Input
-            </Button>
+            {showProgress ? (
+              <AnalysisProgressTracker
+                currentState={currentState}
+                setShowProgress={setShowProgress}
+                downloadExcelAPI={`pd-input-data-organizer/api/${currentState.taskID || 'no-id'}/download-pd-excel`}
+                downloadParquetAPI={`pd-input-data-organizer/api/${currentState.taskID || 'no-id'}/download-pd-parquet`}
+              />
+            ) : (
+              <Button size="large" color="primary" variant="contained" type="submit" sx={{ width: '100%' }}>
+                Prepare Updated PD Input
+              </Button>
+            )}
           </CardActions>
         </Card>
-        {!!(
-          pdProcess.stage !== 0 &&
-          pdProcess.stage !== 1000 &&
-          !(pdProcess.stage === 600 && pdProcess.analysisCode !== 'PD Progress')
-        ) && (
-          <AnalysisProgressTracker
-            analysisProgress={pdProcess}
-            downloadExcelAPI={`http://127.0.0.1:8000/pd-input-data-organizer/api/download-pd/${profilePk}/${reportDateFileName}/${taskIdPD}`}
-            downloadParquetAPI={`http://127.0.0.1:8000/pd-input-data-organizer/api/download-pd-pickel/${profilePk}/${reportDateFileName}/${taskIdPD}`}
-          />
-        )}
       </FormProvider>
     </Page>
   );

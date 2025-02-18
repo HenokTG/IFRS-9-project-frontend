@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { alpha } from '@mui/material/styles';
 import { Box, MenuItem, Stack, IconButton } from '@mui/material';
 // components
-import MenuPopover from '../../components/MenuPopover';
+import MenuPopover from 'components/MenuPopover';
 
 // ----------------------------------------------------------------------
 

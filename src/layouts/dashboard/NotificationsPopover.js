@@ -18,15 +18,15 @@ import {
   ListItemButton,
 } from '@mui/material';
 // utils
-import { fToNow } from '../../utils/formatTime';
+import { fToNow } from 'utils/formatTime';
 // components
-import Iconify from '../../components/Iconify';
-import Scrollbar from '../../components/Scrollbar';
-import MenuPopover from '../../components/MenuPopover';
+import Iconify from 'components/Iconify';
+import Scrollbar from 'components/Scrollbar';
+import MenuPopover from 'components/MenuPopover';
 // context and modules
-import { fetchNotifications } from '../../_apiAxios/models';
-import { useGlobalContext } from '../../context';
-import { axiosInstance } from '../../utils/axios';
+import { fetchNotifications } from '_apiAxios/models';
+import { useGlobalContext } from 'contexts/AppContext';
+import { axiosInstance } from 'utils/axios';
 // ----------------------------------------------------------------------
 
 export default function NotificationsPopover() {

@@ -4,11 +4,11 @@ import { Link as RouterLink } from 'react-router-dom';
 import { alpha, styled } from '@mui/material/styles';
 import { Box, Link, Card, Grid, Avatar, Typography, CardContent } from '@mui/material';
 // utils
-import { fDate } from '../../utils/formatTime';
-import { fShortenNumber } from '../../utils/formatNumber';
+import { fDate } from 'utils/formatTime';
+import { fShortenNumber } from 'utils/formatNumber';
 //
-import SvgIconStyle from '../../components/SvgIconStyle';
-import Iconify from '../../components/Iconify';
+import SvgIconStyle from 'components/SvgIconStyle';
+import Iconify from 'components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ BlogPostCard.propTypes = {
 };
 
 export default function BlogPostCard({ post, index }) {
-  const { cover, title, view, comment, share, author, createdAt } = post;
+  const { cover, title, view, comment, share, analyst, createdAt } = post;
   const latestPostLarge = index === 0;
   const latestPost = index === 1 || index === 2;
 
@@ -106,8 +106,8 @@ export default function BlogPostCard({ post, index }) {
             }}
           />
           <AvatarStyle
-            alt={author.name}
-            src={author.avatarUrl}
+            alt={analyst.name}
+            src={analyst.avatarUrl}
             sx={{
               ...((latestPostLarge || latestPost) && {
                 zIndex: 9,

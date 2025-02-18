@@ -7,12 +7,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton } from '@mui/material';
 // components
-import MenuPopover from '../../components/MenuPopover';
-import Iconify from '../../components/Iconify';
+import MenuPopover from 'components/MenuPopover';
+import Iconify from 'components/Iconify';
 
-// mocks_ and context and modules
-import { axiosInstance } from '../../utils/axios';
-import { useGlobalContext } from '../../context';
+// context and modules
+import { axiosInstance } from 'utils/axios';
+import { useGlobalContext } from 'contexts/AppContext';
 
 // ----------------------------------------------------------------------
 
@@ -20,12 +20,12 @@ const MENU_OPTIONS = [
   {
     label: 'Dashboard',
     icon: 'eva:home-fill',
-    linkTo: '/app/dashboard',
+    linkTo: '/dashboard',
   },
   {
     label: 'User profile',
     icon: 'eva:person-fill',
-    linkTo: '/app/app-settings/user-profile',
+    linkTo: '/my-profile',
   },
 ];
 
@@ -36,7 +36,7 @@ AccountPopover.propTypes = {
 };
 
 export default function AccountPopover({ account }) {
-  const { setLoggedIn, setProfilePk, setProfile } = useGlobalContext();
+  const { setLoggedIn, setProfile } = useGlobalContext();
   const anchorRef = useRef(null);
 
   const [open, setOpen] = useState(null);
@@ -58,7 +58,6 @@ export default function AccountPopover({ account }) {
     axiosInstance.defaults.headers.Authorization = null;
     setOpen(null);
     setLoggedIn(false);
-    setProfilePk('');
     setProfile({});
   };
 
@@ -106,7 +105,7 @@ export default function AccountPopover({ account }) {
             {account.displayName}
           </Typography>
           <Typography variant="caption" noWrap>
-            {account.institute}
+            {account.employer}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', my: 0.25 }} noWrap>
             {account.email}

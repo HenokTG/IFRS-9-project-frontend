@@ -3,56 +3,48 @@ import { NavLink as RouterLink } from 'react-router-dom';
 
 // react chart
 import { Chart as ChartJS } from 'chart.js/auto';
-import { Bar, Chart } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 // MUI
-import { Box, Button, Card, CardContent, CardHeader, Divider, useTheme } from '@mui/material';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import { Box, Button, Card, CardContent, CardHeader, Divider, useTheme } from '@mui/material';
 
-import { MonthPicker } from './AppWidgetSummary';
-import { useGlobalContext } from '../../context';
-import { fetchDashboardTLDataset } from '../../_apiAxios/dashboardSummary';
+import { useGlobalContext } from 'contexts/AppContext';
+import { fetchDashboardTLDataset } from '_apiAxios/dashboardSummary';
+
+import { ThemeMode } from 'config';
+
+import { ReportingMonthSelect, CircularLoader } from './AppWidgetSummary';
 
 const TermLoanECL = (props) => {
   const theme = useTheme();
+  const { loggedIn, approvedResults } = useGlobalContext();
 
-  const { profilePk, bankName } = useGlobalContext();
+  const isDarkMode = theme.palette.mode === ThemeMode.DARK;
 
-  const intialTLDate = new Date('2021-06-30');
+  const [loading, setLoading] = useState(true);
 
   const [dataSetTL, setDataSetTL] = useState([]);
-  const [tlGraphMonth, setTlGraphMonth] = useState(intialTLDate.toString());
+  const [tlGraphMonth, setTlGraphMonth] = useState(approvedResults[0]?.monthLabel);
 
   const data = {
     datasets: [
       {
         backgroundColor: '#18A558',
-        barPercentage: 0.5,
-        barThickness: 30,
-        borderRadius: 3,
-        categoryPercentage: 0.5,
+        borderRadius: 2,
         data: dataSetTL.length !== 0 ? dataSetTL[0] : [],
         label: 'Stage 1',
-        maxBarThickness: 24,
       },
       {
         backgroundColor: '#2E8BC0',
-        barPercentage: 0.5,
-        barThickness: 30,
-        borderRadius: 3,
-        categoryPercentage: 0.5,
+        borderRadius: 2,
         data: dataSetTL.length !== 0 ? dataSetTL[1] : [],
         label: 'Stage 2',
-        maxBarThickness: 24,
       },
       {
         backgroundColor: '#FF4500',
-        barPercentage: 0.5,
-        barThickness: 30,
-        borderRadius: 3,
-        categoryPercentage: 0.5,
+        borderRadius: 2,
         data: dataSetTL.length !== 0 ? dataSetTL[2] : [],
         label: 'Stage 3',
-        maxBarThickness: 24,
       },
     ],
     labels: dataSetTL.length !== 0 ? dataSetTL[3] : [],
@@ -109,36 +101,55 @@ const TermLoanECL = (props) => {
 
   useEffect(
     () => {
-      const TLAPI = `/ecl-analysis/api/tl-summary/${bankName}/${profilePk}/${tlGraphMonth}`;
+      if (loggedIn) {
+        setLoading(true);
+        const summaryFor = approvedResults.find((mnth) => mnth.monthLabel === tlGraphMonth);
 
-      fetchDashboardTLDataset(profilePk, TLAPI, setDataSetTL);
+        fetchDashboardTLDataset('/ecl-analysis/api/term-loan-summary', {
+          summary_year: summaryFor ? summaryFor.summaryYear : 0,
+          summary_month: summaryFor ? summaryFor.summaryMonth : '',
+        })
+          .then(({ termLoanDataset }) => {
+            setDataSetTL(termLoanDataset);
+          })
+          .catch(() => {
+            setDataSetTL([]);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tlGraphMonth]
+    [loggedIn, tlGraphMonth, props.refresh]
   );
-
-  const changeDatetoLocal = (newValue) => {
-    const pickerDate = new Date(newValue);
-    setTlGraphMonth(pickerDate.toString());
-  };
 
   return (
     <Card {...props}>
       <CardHeader
         title="Term Loan ECL by Loan Sectors"
-        action={<MonthPicker month={tlGraphMonth} setMonth={changeDatetoLocal} />}
-        sx={{ p: 3, color: 'white', bgcolor: (theme) => theme.palette.grey[800] }}
+        action={
+          <ReportingMonthSelect summaryDate={tlGraphMonth} setSummaryDate={setTlGraphMonth} isDarkMode={isDarkMode} />
+        }
+        titleTypographyProps={{ variant: 'h5' }}
+        sx={{
+          p: 3,
+          pl: 2,
+          color: isDarkMode ? 'white' : 'black',
+          bgcolor: theme.palette.grey[isDarkMode ? 100 : 200],
+        }}
       />
       <Divider />
-      <CardContent>
-        <Box
-          sx={{
-            height: 400,
-            position: 'relative',
-          }}
-        >
-          <Bar data={data} options={options} />
-        </Box>
+      <CardContent sx={{ px: 1 }}>
+        {loading ? (
+          <CircularLoader sx={{ py: 10 }} />
+        ) : (
+          <>
+            <Box sx={{ height: 465 }}>
+              <Bar data={data} options={options} />
+            </Box>
+          </>
+        )}
       </CardContent>
       <Divider />
       <Box
@@ -147,11 +158,11 @@ const TermLoanECL = (props) => {
           justifyContent: 'flex-end',
           p: 2,
           color: 'white',
-          bgcolor: (theme) => theme.palette.grey[800],
+          bgcolor: (theme) => theme.palette.grey[isDarkMode ? 100 : 200],
         }}
       >
-        <RouterLink to="/app/report/term-loan-result-summary" >
-          <Button color="info" variant="contained" endIcon={<ArrowRightIcon fontSize="small" />} size="small">
+        <RouterLink to="/report/term-loan">
+          <Button variant="contained" endIcon={<ArrowRightIcon fontSize="small" />} size="small">
             View All
           </Button>
         </RouterLink>

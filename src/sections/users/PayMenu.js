@@ -5,9 +5,9 @@ import { useRef, useState } from 'react';
 // material
 import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/material';
 // component
-import Iconify from '../../components/Iconify';
+import Iconify from 'components/Iconify';
 // context and modules
-import { axiosInstance } from '../../utils/axios';
+import { axiosInstance } from 'utils/axios';
 // ----------------------------------------------------------------------
 
 PayMenu.propTypes = {
